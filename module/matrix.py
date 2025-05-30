@@ -1,164 +1,134 @@
-# Module's Imports
 import numpy as np
 import os
 
-# Module's Classes
-class Matrix:
-    def __init__(self, x: int = 0, y: int = 0, namaMatrix: str = ""):
-        self.x = x
-        self.y = y
-        self.n = namaMatrix
-        self.data = None
+class MatrixHandler:
+    def __init__(self):
+        self.matrixA = None
+        self.matrixB = None
+        self.result = None
+        self.namaA = ""
+        self.namaB = ""
+        self.opName = ""
+        self.has_matrix = False
+        self.combined = False
 
-    def _initiateMatrix(self):
-        if self.x == 0 or self.y == 0:
-            self.x = int(input("Masukkan panjang Matrix (baris): "))
-            self.y = int(input("Masukkan lebar Matrix (kolom): "))
-        if not self.n:
-            self.n = input("Masukkan nama Matrix: ")
+    def clear_terminal(self):
+        os.system('cls' if os.name == 'nt' else 'clear')
 
-        isiMatrix = []
-        for i in range(self.x):
+    def input_matrix(self, nama=""):
+        x = int(input("Masukkan panjang Matriks (baris): "))
+        y = int(input("Masukkan lebar Matriks (kolom): "))
+        if not nama:
+            nama = input("Masukkan nama Matriks: ")
+        data = []
+        for i in range(x):
             baris = []
-            for j in range(self.y):
-                val = float(input(f"{self.n} Baris:[{i+1}] Kolom:[{j+1}] : "))
+            for j in range(y):
+                val = float(input(f"{nama} Baris:[{i+1}] Kolom:[{j+1}] : "))
                 baris.append(val)
-            isiMatrix.append(baris)
+            data.append(baris)
+        return np.array(data), nama
 
-        self.data = np.array(isiMatrix)
-        return self.data
+    def show_menu(self):
+        print("=== Menu Matriks ===")
+        print("1. Input 2 Matriks")
+        print("2. Operasikan Matriks (elemen-per-elemen)")
+        print("3. Perkalian Matriks (dot product)")
+        print("4. Hapus Matriks")
+        print("0. Keluar")
+        try:
+            return int(input("Pilih menu: "))
+        except ValueError:
+            return -1
 
-# Module's Functions
-def _clearTerminal():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    def input_matrices(self):
+        self.clear_terminal()
+        self.matrixA, self.namaA = self.input_matrix()
+        self.clear_terminal()
+        self.matrixB, self.namaB = self.input_matrix()
+        self.has_matrix = True
+        self.combined = False
 
-def _showMenu():
-    print("=== Menu Matrix ===")
-    print("1. Input 2 Matrix")
-    print("2. Operasikan Matrix (elemen-per-elemen)")
-    print("3. Perkalian Matriks (dot product)")
-    print("4. Hapus Matrix")
-    print("0. Keluar")
-    try:
-        return int(input("Pilih menu: "))
-    except ValueError:
-        return -1
-
-def _runMatrixProgram():
-    global hasMatrix, combinedMatrix
-    global MVarA, MVarB, matrixA, matrixB, matrixResult, matrixOperation
-
-    _clearTerminal()
-
-    hasMatrix = False
-    combinedMatrix = False
-    MVarA = None
-    MVarB = None
-    matrixA = None
-    matrixB = None
-    matrixResult = None
-    matrixOperation = ""
-
-    while True:
-        _clearTerminal()
-        if hasMatrix:
-            print(f"Matriks {MVarA.n}:\n{matrixA}\n")
-            print(f"Matriks {MVarB.n}:\n{matrixB}\n")
-        if combinedMatrix:
-            print(f"Hasil {matrixOperation}:\n{matrixResult}\n")
-
-        menuPointer = _showMenu()
-
-        match menuPointer:
-            case 1:
-                _clearTerminal()
-                MVarA = Matrix()
-                matrixA = MVarA._initiateMatrix()
-                _clearTerminal()
-                MVarB = Matrix()
-                matrixB = MVarB._initiateMatrix()
-                hasMatrix = True
-                combinedMatrix = False
-            case 2:
-                if not hasMatrix:
-                    print("Silakan input matrix terlebih dahulu.")
-                    input("Tekan Enter untuk kembali...")
-                    continue
-
-                if matrixA.shape != matrixB.shape:
-                    print("Dimensi matriks tidak cocok untuk operasi elemen-per-elemen.")
-                    input("Tekan Enter untuk kembali...")
-                    continue
-
-                print("\nPilih operasi: +  -  *  /")
-                op = input("Operasi: ")
-
-                try:
-                    if op == '+':
-                        matrixResult = matrixA + matrixB
-                        matrixOperation = "Penjumlahan"
-                    elif op == '-':
-                        matrixResult = matrixA - matrixB
-                        matrixOperation = "Pengurangan"
-                    elif op == '*':
-                        matrixResult = matrixA * matrixB
-                        matrixOperation = "Perkalian"
-                    elif op == '/':
-                        matrixResult = matrixA / matrixB
-                        matrixOperation = "Pembagian"
-                    else:
-                        print("Operasi tidak valid.")
-                        input("Tekan Enter untuk kembali...")
-                        continue
-                    combinedMatrix = True
-                except Exception as e:
-                    print("Terjadi kesalahan saat operasi:", e)
-                    input("Tekan Enter untuk kembali...")
-
-            case 3:
-                if not hasMatrix:
-                    print("Silakan input matrix terlebih dahulu.")
-                    input("Tekan Enter untuk kembali...")
-                    continue
-
-                if matrixA.shape[1] != matrixB.shape[0]:
-                    print(f"Dimensi tidak cocok untuk dot product:")
-                    print(f"Kolom {MVarA.n} harus sama dengan baris {MVarB.n}")
-                    input("Tekan Enter untuk kembali...")
-                    continue
-
-                try:
-                    matrixResult = matrixA @ matrixB
-                    matrixOperation = "Perkalian Matriks (Dot Product)"
-                    combinedMatrix = True
-                except Exception as e:
-                    print("Terjadi kesalahan saat perkalian matriks:", e)
-                    input("Tekan Enter untuk kembali...")
-
-            case 4:
-                if not hasMatrix:
-                    print("Belum ada matriks yang bisa dihapus.")
+    def operate_matrices(self):
+        if not self.has_matrix:
+            print("Silakan input matriks terlebih dahulu.")
+        elif self.matrixA.shape != self.matrixB.shape:
+            print("Dimensi matriks tidak cocok untuk operasi elemen-per-elemen.")
+        else:
+            op = input("Pilih operasi (+ - * /): ")
+            try:
+                if op == '+':
+                    self.result = self.matrixA + self.matrixB
+                    self.opName = "Penjumlahan"
+                elif op == '-':
+                    self.result = self.matrixA - self.matrixB
+                    self.opName = "Pengurangan"
+                elif op == '*':
+                    self.result = self.matrixA * self.matrixB
+                    self.opName = "Perkalian"
+                elif op == '/':
+                    if np.any(self.matrixB == 0):
+                        raise ZeroDivisionError("Pembagian dengan nol.")
+                    self.result = self.matrixA / self.matrixB
+                    self.opName = "Pembagian"
                 else:
-                    konfirmasi = input("Yakin ingin menghapus semua matrix? (y/n): ").lower()
-                    if konfirmasi == 'y':
-                        hasMatrix = False
-                        combinedMatrix = False
-                        MVarA = None
-                        MVarB = None
-                        matrixA = None
-                        matrixB = None
-                        matrixResult = None
-                        matrixOperation = ""
-                        print("Matrix berhasil dihapus.")
-                    else:
-                        print("Penghapusan dibatalkan.")
-                input("Tekan Enter untuk kembali...")
+                    print("Operasi tidak valid.")
+                    input("Tekan Enter untuk kembali...")
+                    return
+                self.combined = True
+            except Exception as e:
+                print("Terjadi kesalahan saat operasi:", e)
+        input("Tekan Enter untuk kembali...")
 
-            case 0:
+    def dot_product(self):
+        if not self.has_matrix:
+            print("Silakan input matriks terlebih dahulu.")
+        elif self.matrixA.shape[1] != self.matrixB.shape[0]:
+            print(f"Dimensi tidak cocok untuk dot product:\nKolom {self.namaA} harus sama dengan baris {self.namaB}")
+        else:
+            try:
+                self.result = self.matrixA @ self.matrixB
+                self.opName = "Perkalian Matriks (Dot Product)"
+                self.combined = True
+            except Exception as e:
+                print("Terjadi kesalahan saat perkalian matriks:", e)
+        input("Tekan Enter untuk kembali...")
+
+    def clear_matrices(self):
+        if not self.has_matrix:
+            print("Belum ada matriks yang bisa dihapus.")
+        else:
+            if input("Yakin ingin menghapus semua matriks? (y/n): ").lower() == 'y':
+                self.matrixA = self.matrixB = self.result = None
+                self.namaA = self.namaB = self.opName = ""
+                self.has_matrix = self.combined = False
+                print("Matriks berhasil dihapus.")
+            else:
+                print("Penghapusan dibatalkan.")
+        input("Tekan Enter untuk kembali...")
+
+    def main(self):
+        while True:
+            self.clear_terminal()
+            if self.has_matrix:
+                print(f"Matriks {self.namaA}:\n{self.matrixA}\n")
+                print(f"Matriks {self.namaB}:\n{self.matrixB}\n")
+            if self.combined:
+                print(f"Hasil {self.opName}:\n{self.result}\n")
+
+            menu = self.show_menu()
+
+            if menu == 1:
+                self.input_matrices()
+            elif menu == 2:
+                self.operate_matrices()
+            elif menu == 3:
+                self.dot_product()
+            elif menu == 4:
+                self.clear_matrices()
+            elif menu == 0:
                 print("Keluar dari sub-program matrix...")
                 break
-
-            case _:
+            else:
                 print("Pilihan tidak valid!")
                 input("Tekan Enter untuk lanjut...")
-
